@@ -1,0 +1,42 @@
+# defaults for transmission-daemon
+# sourced by /etc/init.d/transmission-daemon
+
+# Change to 0 to disable daemon
+ENABLE_DAEMON=1
+
+# This directory stores some runtime information, like torrent files
+# and links to the config file, which itself can be found in
+# /etc/transmission-daemon/settings.json
+CONFIG_DIR="/var/lib/transmission-daemon/info"
+
+# Default options for daemon, see transmission-daemon(1) for more options
+OPTIONS="--config-dir $CONFIG_DIR"
+
+# (optional) extra options to start-stop-daemon
+#START_STOP_OPTIONS="--iosched idle --nicelevel 10"
+
+return
+
+maybe_mount_dl(){
+        mount | grep -q transmission-daemon || sshfs -o port=2222,allow_other,reconnect,sync_readdir,intr,hard_remove,IdentityFile=/root/.ssh/id_rsa sileht@ester.sileht.net:/data/transmission/ /var/lib/transmission-daemon/downloads
+}
+
+umount_dl(){
+        ret=$?
+        mount | grep -q transmission-daemon && umount /var/lib/transmission-daemon/downloads || true
+        exit $ret
+}
+
+case $1 in
+    start)
+        maybe_mount_dl
+    ;;
+    stop)
+        trap umount_dl EXIT
+    ;;
+    restart)
+        /etc/init.d/transmission-daemon stop || exit $?
+        /etc/init.d/transmission-daemon start
+        exit $?
+    ;;
+esac

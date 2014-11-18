@@ -1,0 +1,38 @@
+127.0.0.1   localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1     ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+
+91.224.149.214           gizmo.sileht.net  gizmo
+2a03:7220:8081:d600::1   gizmo.sileht.net  gizmo
+2a03:7220:8081:d6ff::80  gizmo.sileht.net  gizmo
+
+2001:41d0:8:c322::1      predator.sileht.net   predator
+5.135.186.34             predator.sileht.net   predator
+
+
+91.224.149.214                  ns1.sileht.net      ns1
+2a03:7220:8081:d6ff::53         ns1.sileht.net      ns1
+5.135.186.34                    ns2.sileht.net      ns2
+2001:41d0:8:c322::1             ns2.sileht.net      ns2
+
+91.224.149.214                  mx1.sileht.net      mx1
+2a03:7220:8081:d6ff::25         mx1.sileht.net      mx1
+5.135.186.34                    mx2.sileht.net      mx2
+2001:41d0:8:c322::1             mx2.sileht.net      mx2
+
+10.10.161.32                    irc.devel.redhat.com
+10.4.122.10                     smtp.corp.redhat.com
+10.4.203.49                     smtp.corp.redhat.com
+
+127.0.0.1                       mail-redhat
+
+<% if @ipaddress_tun_redhat -%>
+<%= @ipaddress_tun_redhat %> gizmo-redhat
+<% else %>
+0.0.0.0 gizmo-redhat
+<% end -%>

@@ -1,0 +1,144 @@
+---
+classes:
+ - apt
+ - utils
+ - ssh
+ - sysctl::base
+
+domain: sileht.net
+nameservers: [127.0.0.1]
+
+utils::crons:
+  puppet: {minute: '0', hour: '0', user: root, command: "/puppet/apply --cron"}
+
+utils::files:
+  /etc/motd: files/motd.erb
+  /etc/resolv.conf: files/resolv.conf.erb
+  /etc/hosts: files/hosts.erb
+  /root/.bashrc: files/.bashrc.erb
+  /etc/sudoers.d/perso:
+     mode: '0400'
+     content: |
+       Defaults !tty_tickets
+       sileht   ALL=(ALL:ALL) NOPASSWD:ALL
+  /etc/nullmailer:
+    ensure: directory
+  /etc/nullmailer/defaultdomain:
+    content: sileht.net
+  /etc/nullmailer/remotes:
+    mode: '0600'
+    owner: mail
+    group: mail
+    content: ENC[PKCS7,MIIBuQYJKoZIhvcNAQcDoIIBqjCCAaYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAl4fzjYiAiCvbtbbi8rBqINSX/c9PcVzW0PZdo1blCfXmtPr0mSbi0mjMvkxU6vseK6RZPElyeztGs1QlmtIgFMeVQ97mTPMwxXIz1CVNoYuoWP9717EIUPd1LpbNk7cdDypuMbUFU0z+C61/lmx2Qu7FUtQUZ0GZI7NsoJT8ymXOSnK0HJtIxFfhD7+LsY8ig65uUAkvPZ3lYCbh89MvBf4hSalyrbKVtwTlyaciCjrczaWwT2PmnNAD6Im/s/5jqqLrUlH03ji3iaXg87AWO8yfLwM0rOeStGhpCizVZdv68h/xA27MdUviBY2TePjQHjqN3Tc6PhzgVFtfyL6cWTB8BgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBAtjccDM+9RoHFsoYeqlFP9gFBc6J8Nc0LsaMCqWc94+xR8nEA372pFHHAigjkHdg7+d3Mb0EHr+kOcpGTcS6aoqOwBCelHgtctPF4QCdKo+QHTiLIJqHci0mNQth8+/1dlfQ==]
+
+apt::always_apt_update: false
+apt::purge:
+  sources.list: true
+  sources.list.d: true
+  preferences: true
+  preferences.d: true
+apt::fancy_progress: true
+utils::apt_sources:
+  debian:
+    location: http://ftp.debian.org/debian
+    release: "bullseye"
+    repos: main contrib non-free
+    include: {src: false}
+    pin: 500
+#  debian-security:
+#    location: http://security.debian.org/
+#    release: "bullseye/updates"
+#    repos: main contrib non-free
+#    include: {src: false}
+  debian-proposed-updates:
+    location: http://ftp.debian.org/debian
+    release: bullseye-proposed-updates
+    repos: main contrib non-free
+    include: {src: false}
+  debian-backports:
+    location: http://ftp.debian.org/debian
+    release: bullseye-backports
+    repos: main contrib non-free
+    include: {src: false}
+  debian-multimedia:
+    location: http://www.deb-multimedia.org
+    release: bullseye
+    repos: main non-free
+    include: {src: false}
+#    key: A401FF99368FA1F98152DE755C808C2B65558117
+    pin: 500
+  debian-sid:
+    location: http://ftp.de.debian.org/debian
+    release: sid
+    repos: main contrib non-free
+    include: {src: false}
+    pin: -10
+
+utils::packages:
+  apt-transport-https:
+  #python-mysqldb:
+  #python-keyczar:
+  virt-what:
+  wget:
+  socat:
+  rsync:
+  screen:
+  curl:
+  zsh:
+  git:
+  molly-guard:
+  ncdu:
+  htop:
+  vim:
+  debian-goodies:
+  dstat:
+  iperf:
+  iptraf:
+  mtr-tiny:
+  nullmailer:
+  haveged:
+  rng-tools:
+    ensure: purged
+  nmap:
+  ntp:
+  heirloom-mailx:
+  bash-completion:
+  psmisc:
+  arj:
+  bzip2:
+  cabextract:
+  cpio:
+  file:
+  gzip:
+  lzop:
+  augeas-tools:
+  prometheus-node-exporter:
+  dbus:
+  # python-dnspython:
+
+utils::ssh_authorized_key:
+  sileht@sileht.net:
+    user: root
+    type: ssh-ed25519
+    key: AAAAC3NzaC1lZDI1NTE5AAAAIA5cFY5NKvJo58ezWdpGdtdmHbzrGac5SmDpCPeyM4c/
+  borg:
+    user: root
+    options: 'command="borg serve --restrict-to-path /data/backup"'
+    type: ssh-rsa
+    key: AAAAB3NzaC1yc2EAAAADAQABAAABAQCWFj3/fTXW/zoCZ0EkbPlCTcfODGa1fbNrxRtfZUmHY4qkkcpBLeFT7hc9TcCcC5G0Hah3ENVCqzFb8s7l8jgjeegWJI+k3auynYGdX07qrugp3b0fzniJth1QpkpGlM1Kh9JaBYjvC2IxbaNkmg259ZPomVx0+aybhbNfMc+5qvIoJkdg0B+omBzbLZ9+4P0We6dLfIJ7bofJkYeTIwDBUm9Mj3USsdm1X6FKBoxDt6R6dhUa/5CCeq+mhhEZC6dmlmg/hjo/KIY14MJ+Ubq1fxzQ6ZS/4ko1YhoLhfZg+pJCycSumr7eSBdTd27pPl8OI6ls9kXeRvbmhaQmha+r
+  root@rt:
+    user: root
+    type: ssh-ed25519
+    key: AAAAC3NzaC1lZDI1NTE5AAAAIKHa9gQ8KmIVGyq+ZkXpvtNliofFMOP5C7Ixm1yfwm5K
+
+ssh::storeconfigs_enabled: false
+ssh::server_options:
+    Port: [5555]
+    AcceptEnv: ""
+    StreamLocalBindUnlink: yes
+    GatewayPorts: yes
+ssh::client_options:
+    'Host *':
+      GSSAPIAuthentication: yes
+      GSSAPIDelegateCredentials: no
+      SendEnv: LANG LC_*

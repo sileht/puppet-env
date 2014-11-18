@@ -1,0 +1,17 @@
+---
+classes:
+ - checkmk::agent
+utils::deletes:
+  - /usr/lib/check_mk_agent/plugins/5
+  - /usr/lib/check_mk_agent/plugins/10
+  - /usr/lib/check_mk_agent/plugins/60
+checkmk::agent::logwatch: files/mk_logwatch.cfg
+checkmk::agent::xinetd_only_from: ['89.234.156.171', '192.168.3.24', '192.168.99.241', '10.20.0.30', '2a03:7220:8083:ab00::1']
+checkmk::agent::xinetd_flags: IPv6
+
+# Don't use checkmk backports
+utils::apt_pins:
+  checkmk:
+    packages: check-mk-agent
+    release: bullseye-backports
+    priority: -10

@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e 
+
+here=$(readlink -f $(dirname $0))
+
+[ "$(id -u)" != "0" ] && echo "Need root priviledge" && exit 1
+
+cron=
+[ "$1" = "--cron" ] && shift && cron=1
+[ -f /nopuppet -a "$cron" ] && exit 0
+
+if [ "$cron" ]; then
+    logfile=$(mktemp /tmp/puppet-XXXXX.log)
+    exec 10>&1
+    exec &> $logfile
+
+    cleanup(){
+        ret=$?
+        [ "$ret" != "0" ] && cat $logfile >&10
+        rm -f $logfile
+        exit $ret
+    }
+    trap cleanup EXIT
+fi
+
+cd $here
+case $(hostname -s ) in
+    gizmo)
+        if [ "$1" == "-f" ]; then
+            sudo -u sileht -E /puppet/squash_and_push
+            shift
+        fi
+    ;;
+    *)
+        git remote set-url origin https://github.com/sileht/puppet-env.git
+        if [ "$1" == "-f" ]; then
+            ssh -A -p5555 sileht@gizmo.sileht.net '/puppet/squash_and_push'
+            shift
+        fi
+        git fetch origin
+        git reset --hard origin/master
+        git submodule init
+        git submodule sync
+        git submodule update
+        git reflog expire --expire=now --all
+        git gc --prune=now
+    ;;
+esac
+
+default_opts="--onetime --ignorecache --no-daemonize --no-usecacheonfailure --no-splay --show_diff --verbose --hiera_config $here/hiera.yaml --modulepath=$here/modules --rich_data"
+puppet apply $default_opts "$@" site.pp
+ret=$?
+set +e
+# FIXME(sileht): workaround apt-key bug
+pkill dirmngr
+exit $ret

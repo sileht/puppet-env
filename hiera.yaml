@@ -1,0 +1,17 @@
+version: 5
+hierarchy:
+defaults:
+  datadir: ./
+  data_hash: yaml_data
+hierarchy:
+  - name: "My config"
+    paths:
+      - "%{trusted.certname}.yaml"
+      - checkmk.yaml
+      - resolver.yaml
+      - ssl.yaml
+      - common.yaml
+    lookup_key: eyaml_lookup_key
+    options:
+      pkcs7_private_key: ./keys/private_key.pkcs7.pem
+      pkcs7_public_key:  ./keys/public_key.pkcs7.pem

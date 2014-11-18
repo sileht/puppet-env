@@ -1,0 +1,22 @@
+
+
+script-security 2
+local 91.224.149.214
+port 4444
+proto udp
+dev-type tun
+dev tun-home
+tun-ipv6
+
+#link-mtu 1440
+mssfix 1400
+
+persist-key
+persist-tun
+
+auth none
+cipher none
+
+#secret /etc/openvpn/ovpn-secret.key
+#comp-lzo yes
+up /etc/openvpn/home-up.sh

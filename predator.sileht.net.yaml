@@ -1,0 +1,186 @@
+---
+classes:
+  - shorewall
+  - utils::firewall
+  - utils::ssl
+  - utils::nsd
+  - unbound
+  - utils::transmission
+  - fail2ban
+
+utils::packages:
+  sshfs:
+  borgbackup:
+  lm-sensors:
+  hdparm:
+  keychain:
+  mosh:
+  reptyr:
+
+sysctl::base::values:
+  net.core.rmem_max:
+    value: 4194304
+  net.core.wmem_max:
+    value: 1048576
+  net.ipv4.ip_forward:
+    value: '1'
+
+utils::transmission::settings:
+  "peer-port": '42421'
+  "rpc-port": '2086'
+  "rpc-authentication-required": 'false'
+  "rpc-whitelist-enabled": 'false'
+  "blocklist-url": 'https://ibl.sileht.net/blocklist.gz'
+  "blocklist-enabled": 'true'
+
+# https://github.com/sahsu/transmission-blocklist/issues/1
+###  "#blocklist-url": 'http://john.bitsurge.net/public/biglist.p2p.gz'
+
+apt::proxy_host:
+apt::proxy_port:
+
+hosts_external_ip_only: true
+utils::mailredirect: false
+
+utils::nsd::configs:
+  ip-address:
+    - 2001:41d0:8:c322::1
+    - 5.135.186.34
+utils::nsd::config:
+  hide-version: 'yes'
+  verbosity: 2
+utils::nsd::keys:
+  sec_key:
+    algorithm: hmac-md5
+    secret: ENC[PKCS7,MIIBiQYJKoZIhvcNAQcDoIIBejCCAXYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAsdgHO04SrVRRxb0x3XpqxIFq27k6Bchd5U7QYhuuGb8sXNav9KlKQA8A3rznW2tphr8qk6FtgAK0vJbURbIOEn2fZHmbNXytPDyQbiRZWkrvJxmCJyNIodMFD0GS+K8t9SEi+C0tu9B6dJp8Z+CFO0Mp/rAe54uyuvqpQsa2pgkObbaaDJiBzCYnxwzyGu6B4GUBbRK2+BYTTP8GIuW2sD+NaFb4yyPCPzXnuz7u+LSLIqdhCDYSSleXHEvoDplsrWk5/hwJa+XoSfQQWHLNMbVI1Quh5AwxghzXP4TzQAtVHg6TtYi9EdqGM5I75NmMZTVzFJUQ0qIoxhy6grXSvTBMBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBDWIEMry9xKDCa58rpePI2ygCCbzO7oM7Bfhrcnkx0F6qbeygfbZD/FG/MydlNGW+b5uw==]
+utils::nsd::zones:
+  sileht.net:
+    allow-notify: "2a03:7220:8081:d600::1 sec_key"
+    request-xfr: "AXFR 2a03:7220:8081:d600::1 sec_key"
+  2.ip6.arpa:
+    allow-notify: "2a03:7220:8081:d600::1 sec_key"
+    request-xfr: "AXFR 2a03:7220:8081:d600::1 sec_key"
+  in-addr.arpa:
+    allow-notify: "2a03:7220:8081:d600::1 sec_key"
+    request-xfr: "AXFR 2a03:7220:8081:d600::1 sec_key"
+
+
+fail2ban::action: action_mwl
+fail2ban::banaction: shorewall
+fail2ban::email: "sileht-fail2ban@sileht.net"
+fail2ban::jails:
+  - ssh
+  - ssh-ddos
+  - nsd
+fail2ban::whitelist:
+  - '127.0.0.1/8'
+  - '176.158.220.71/32'
+
+shorewall::ip_forwarding: true
+shorewall::log_martians: false
+shorewall::ipv4: true
+shorewall::ipv6: true
+#utils::firewall::config:
+# BLACKLIST:
+#    value: '"NEW,INVALID"'
+utils::firewall::zones: ['net', 'vpn']
+utils::firewall::ifaces:
+  'lo': { zone: '-' }
+  'eth0': { zone: 'net', options: ['nosmurfs', 'tcpflags'] }
+  'tun+': { zone: 'vpn', options: ['nosmurfs', 'tcpflags'] }
+utils::firewall::policies:
+  '10': { source: '$FW', dest: 'all', action: 'ACCEPT' }
+  '15': { source: 'vpn', dest: 'all', action: 'ACCEPT' }
+  '70': { source: 'all', dest: 'vpn', action: 'ACCEPT' }
+  '75': { source: 'net', dest: 'all', action: 'REJECT'} # , log_level: 'info' }
+  '80': { source: 'all', dest: 'all', action: 'DROP'} #, log_level: 'info' }
+utils::firewall::rules:
+  icmp: { application: Ping, action: ACCEPT, source: net, dest: '$FW', order: 10}
+  ssh: { proto: tcp, port: "5555", action: ACCEPT, source: net, dest: '$FW', order: 20}
+  checkmk: { proto: tcp, port: "6556", action: ACCEPT, source: net, dest: '$FW', order: 30}
+  dns: { proto: 'tcp,udp', port: "53", action: ACCEPT, source: net, dest: '$FW', order: 40}
+  iperf: { proto: 'tcp,udp', port: "5000:5005", action: ACCEPT, source: net, dest: '$FW', order: 70}
+  transmission1: { proto: tcp, port: "2086", action: ACCEPT, source: net, dest: '$FW', order: 110}
+  transmission3: { proto: 'tcp,udp', port: "42421", action: ACCEPT, source: net, dest: '$FW', order: 112}
+  openvpn1: { proto: "tcp", port: "443", action: ACCEPT, source: net, dest: '$FW', order: 130 }
+  openvpn3: { proto: "udp", port: "1195", action: ACCEPT, source: net, dest: '$FW', order: 145 }
+  node-exporter: { proto: "tcp", port: "9100", action: ACCEPT, source: 'net:89.234.156.171', dest: '$FW', order: 230, ipv6: false}
+
+utils::firewall::masqs:
+  eth0: { sources: ['172.16.0.0/24', '172.16.1.0/24', '172.16.2.0/24', '10.42.42.0/24'] }
+
+utils::crons:
+  backup: {minute: '0', hour: '2', user: root, command: "/etc/backup-borg.sh --cron" }
+
+borg::backups: [/etc, /data]
+borg::excludes: [/data/backup, /data/backup.upgrade-attic, /data/transmission-daemon]
+borg::pre_commands:
+  - "dpkg --get-selections | gzip -9 > /data/installed_packages.backup.gz"
+borg::repository: "/data/backup/predator.sileht.net"
+utils::files:
+  /etc/mailname:
+    content: predator.sileht.net
+  /etc/backup-borg.sh:
+    mode: '0755'
+    content: 'files/backup-borg.sh.erb'
+  /etc/check_mk/borg-checker:
+    content: |
+      BORG_REPO="/data/backup/predator.sileht.net"
+      BORG_KEY="/etc/backup-borg-rsa"
+
+  "/etc/default/transmission-daemon":
+    content: "files/default-transmission-daemon"
+    require: "Package[sshfs]"
+
+  "/root/.ssh/id_rsa.pub":
+    mode: '0644'
+    content: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCg4vRwq7W6FpfT6yrPj9o3A0GUVVTuGlp4nIE7Le/Uj9+q+ux5pqCpct2uzr54mz0nM/fmJJHImZw7IxFwWGIuA58jgRDLzmX9UqcQuzV96PsacOeiVQm0TX67X+Cg66cEWVYsF3wlHo9l2NnLqy9YGGDk2H3PzwW4N6oVlPlfW2nWl0FQryv2dUT6AAgBArM5Xl6hWcng+9HNuNGgsTOidDk6/q9GkarQZYGTXgBR5Cn+g1gXDZ99dx5D4hMUV5DBhhoRHmoDWu7OQ2KXesCIURmocx3oE6/RfxJkuA1dq1WvpIE3WmrJnFrfC9kxiBN4p850pUG73kzbsNf/6mDX root@hyde"
+  "/root/.ssh/id_rsa":
+    mode: '0600'
+    content: >
+      ENC[PKCS7,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
+      W8OGpzHw7DnjQWWTpqFHVDwV4KxHyzVe]

@@ -1,0 +1,281 @@
+---
+classes:
+  - utils
+  - shorewall
+  - utils::firewall
+  - unbound
+  - mysql::server
+  - memcached
+  - phpfpm
+  - utils::ssl
+  - utils::phpfpm
+  - fail2ban
+
+hosts_external_ip_only: true
+memcached::max_memory: 1024
+
+utils::apt_sources:
+  debian-weechat:
+    location: https://weechat.org/debian
+    release: bullseye
+    repos: main
+    include: {src: false}
+    key: 11E9DE8848F2B65222AA75B8D1820DB22A11534E
+  yarnpkg:
+    location: "https://dl.yarnpkg.com/debian/"
+    release: stable
+    repos: main
+    include: {src: false}
+    key: 72ECF46A56B4AD39C907BBB71646B01B86E50310
+
+utils::supervisor: true
+utils::supervisor::services:
+  ttrss:
+    command: "/usr/bin/php /var/www/feeds.sileht.net/update_daemon2.php"
+    user: www-data
+    group: www-data
+
+
+utils::packages:
+  ## ESTER ##
+  lm-sensors:
+  hdparm:
+  borgbackup:
+  ## USER ##
+  keychain:
+  mosh:
+  inotify-tools:
+  reptyr:
+  weechat:
+  weechat-plugins:
+  weechat-scripts:
+  aspell-fr:
+  aspell-en:
+  links:
+  lbdb:
+  urlview:
+  libnet-inet6glue-perl:
+  libsoap-lite-perl:
+  amtterm:
+  openvpn:
+  oathtool:
+  t-prot:
+  liburi-find-perl:
+  ## WEB ##
+  nginx-full:
+  certbot:
+  # nextcloud
+  php-dev:
+  php-gd:
+  php-zip:
+  php-intl:
+  php-sqlite3:
+  php-mysql:
+  php-curl:
+  php-apcu:
+  php-redis:
+  ffmpeg:
+  php-intl:
+  php-gd:
+  php-mdb2:
+  php-net-smtp:
+  php-net-socket:
+  php-mail-mime:
+  php-pspell:
+  # php-mcrypt:
+  # php-crypt-gpg: # not yet in stretch
+  php-memcache:
+  # wallabag
+  composer:
+  ## DNS ##
+  nsd:
+  bind9utils:
+  #hash-slinger:
+  unbound-anchor:
+
+########################
+# WEB
+########################
+mysql::server::package_name: mariadb-server
+mysql::server::override_options:
+  mysqld:
+    bind-address: 0.0.0.0
+    innodb_file_per_table: 1
+
+mysql::server::db:
+  backup:
+    user: backup
+    host: localhost
+    password: ENC[PKCS7,MIIBmQYJKoZIhvcNAQcDoIIBijCCAYYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAi/LdoDDMJLoaNiyPsRLb/PFNUhomsQjM1WCouvIX0g+13ljVGsxsZo0fH5FBkWGQqgNgFx0v+YAie9BoBmwEdhovRSLDDQfevdtwlGxNc58QMm8uOW8kjqfn5MZ2ascZVj8wa4CVEzxA4J6UDq1mqmywNCjQ3NQYaL636/OrdhGDIdIv8LR0Wn1TBHsYZwJr66klaaZhnk1Xt0t5dqnqVxJ6symQIos+wDhTjaABZW9bU961iMsOAU2Gcnz0rjaBLLk2RpvI0WxzBQd2P0FmZUWlb68rizUWSzqYbKaZYeij9m4iLauvY/1WKc2nTJ3CLIMGlEu/H1PLHCymZT6FhTBcBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBDte1AteC2fPX+tD0TOaBD+gDAIyDmESlCFt3YcoK6UAjS7WPa6rgqKDKaylE7QoEjE4qxj8woenHkxkBiyhw0YCO0=]
+    grant: ['ALL']
+  wallabag:
+    host: localhost
+    user: wallabag
+    password: ENC[PKCS7,MIIBmQYJKoZIhvcNAQcDoIIBijCCAYYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAQ8YI4gS4PPBW14EiCQTXZBgjgyFvadxhaKoh7OFYo043IonBARF6zvAWFK0wonPo7QkT+nziT5Cv6GnbUvb4pO9HbVW6mUbhbbiMzchd/ZRuaPHjWOqthd7WYlkgPc+lTFsDh9eYyprfXxQBAawZ4F5CyhfysfScym43ejCBclck/QNay9t/N8+kXcxWn0t/77KI4frEcyKEaWocyPTzJ7C9Dxs6jPudZda+IYe/RxaaqLzDAAMezeAN+NERYZEk+uiT5OqtI4/NkYytAN1q8/caWgUYQr09F2QGjR9/W9ZBPu8qhmz0CnOrTjlBrU2LGBdLB4HrUtVACRzCtGVyDzBcBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBBTAWAnHBYOavJUPgbDFS/PgDAhyNdMmJyTk2Qdik8753Rl6r3x0zEbIFIJ99Mj47nS0NHi5mO5KnLdaHsZ7G5hmT8=]
+    charset: utf8mb4
+    collate: utf8mb4_unicode_ci
+    grant: ['ALL']
+  nextcloud:
+    host: localhost
+    user: nextcloud
+    password: ENC[PKCS7,MIIBmQYJKoZIhvcNAQcDoIIBijCCAYYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAJK7OQmYbZb2d42PrankYW4gddBjvDZNpWJ/X9l2DizdNBoF1lRXgb8RGcOtbBZ79SQG2IzcumxmL011qzFo9qx5eBidGYQN7X39a11881xIsiGmv8qGVk9G59JyXgzOSiFCRag7ySsTJrqHQ0PJnRnCzoxSm0FLlasKOscd3x+C+SE3+8AucjuV95Ffta5vtpodIenl6iVplMN0TjgtwBhwwy9EDzjrNz6/9iPd2y82bFiZR5rklZEgubDnHjZPrKEFJeSVp9BM9dnRRCAG4HqhrSrjMWmAapt0k4sVvTT0IM8Lzk3YxETO98lP9tDwQ38nqMD4Osl5joFaAzRU0CDBcBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBD5OpIQU2/e9XMHhaU5gyzygDDvZrKl+gYH2c6vMCJaQjwWEGaQzMBLeb9ydEQuUwgdDZdyuNEHfJjCBW9nJNf76yY=]
+    grant: ['ALL']
+    charset: utf8mb4
+    collate: utf8mb4_general_ci
+  ttrss:
+    host: localhost
+    user: ttrss
+    password: ENC[PKCS7,MIIBmQYJKoZIhvcNAQcDoIIBijCCAYYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAWZGsqxak8IUdBLF367wYZjnZtBNbmkBQhZWUj8+2ox5K+Rxt3Sn3zuZZ9vxt6VLn4huv1oXKBXjJVQh5OE3ag9DqpsaREgayWd8sLSYf2HEeGFFJ3FCu+e6BRJ+NBfrc9/rpk5jz+i1PNyrqvyHgvO6lj4WhXBh8XKNmoKLexfEsa8SbxOpJWXJE0vRNhUHTC1F5H6NJzflE7RBzKTExxuT3ZEkOyLzYkJzUFX9Bat0GRA+cJf/AK65wtzpAqUZulsKFGbvEIgK0zs7ha/bg2TiGBPc/RfdQSBo4t+do/9dLo1ZTvL7mTRpeImGlooH341GA6SWM6En2h5yeZYJcVzBcBgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBDl/Z42Cf5TMxYAB8T6oNKlgDDPNxIeNwOuQQuBX8+AicznIH7TMyxbMg9HEjEkRYNEo4VpUcikKvO6ND5CorSsKJ0=]
+    grant: ['ALL']
+
+borg::backups:
+  - /etc
+  - /data
+  - /data2
+borg::excludes:
+  - /data/web_www/ceph.sileht.net
+  - /data/web_www/cache
+  - /data/sileht
+  - /data/web_www/c.sileht.net/data/appdata_507a845983125
+  - /data/web_www/c.sileht.net/data/updater-507a845983125
+  - /data/web_www/c.sileht.net/data/updater-data
+borg::pre_commands:
+  - "mysqldump -u backup -pmysqlbackup -h localhost --single-transaction --all-databases --events --ignore-table=mysql.event | xz -9 > /data/web_mysql/last_backup.sql.xz"
+  - "dpkg --get-selections | gzip -9 > /data/installed_packages.backup.gz"
+borg::repository: "ssh://root@predator.sileht.net:5555/data/backup/gizmo.sileht.net"
+utils::files:
+  /etc/mailname:
+    content: gizmo.sileht.net
+  /var/log/nextcloud:
+    owner: www-data
+    group: adm
+    ensure: directory
+  /etc/backup-borg.sh:
+    mode: '0755'
+    content: 'files/backup-borg.sh.erb'
+  /etc/check_mk/borg-checker:
+    content: |
+      BORG_REPO="ssh://root@predator.sileht.net:5555/data/backup/gizmo.sileht.net"
+      BORG_KEY="/etc/backup-borg-rsa"
+  /etc/rc.local:
+    mode: "0755"
+    content: |
+      #!/bin/sh
+      #
+      /data/puppet/apply
+      exit 0
+  /usr/local/bin/getssl:
+    ensure: absent
+  /usr/local/bin/create-getssl-config:
+    ensure: absent
+  /usr/local/bin/checkssl:
+    mode: '0755'
+    content: 'files/checkssl'
+
+utils::crons:
+  letencrypt: {minute: '0', hour: '0', user: root, command: "/usr/bin/certbot renew -q -n"}
+  nextcloud: {minute: '*/15', user: www-data, command: "php -d apc.enable_cli=1 -f /var/www/c.sileht.net/current/cron.php &>/dev/null" }
+  nextcloud-preview-generation: {minute: '*/20', user: www-data, command: "php -d apc.enable_cli=1 /var/www/c.sileht.net/current/occ preview:pre-generate &>/dev/null 2>&1" }
+  nextcloud-inotify: {minute: '*/20', user: www-data, command: "php -d apc.enable_cli=1 /var/www/c.sileht.net/current/occ preview:pre-generate &>/dev/null 2>&1" }
+  backup: {minute: '0', hour: '1', user: root, command: "/etc/backup-borg.sh --cron" }
+  dnssec-sig-update: {minute: '0', hour: '0', user: root, command: "/etc/nsd/update-dns --cron" }
+  blocklist-update: {minute: '0', user: www-data, command: "/var/www/ibl.sileht.net/generate_blocklist.sh" }
+
+phpfpm::poold_purge: true
+phpfpm::pools:
+  main:
+    listen: /var/run/php-fpm.sock
+    listen_owner: www-data
+    listen_group: www-data
+    pm: static
+    pm_max_children: 4
+    pm_status_path: /status
+    env:
+      HOSTNAME: '$HOSTNAME'
+      PATH: '/usr/local/bin:/usr/bin:/bin'
+      TMP: /tmp
+      TMPDIR: /tmp
+      TEMP: /tmp
+
+utils::phpfpm::phpconfigs:
+  PHP:
+    'suhosin.log.syslog': S_ALL & ~S_SQL
+    'suhosin.session.encrypt': 'Off'
+    'opcache.enable': 1
+    'opcache.enable_cli': 1
+    'opcache.interned_strings_buffer': 8
+    'opcache.max_accelerated_files': 10000
+    'opcache.memory_consumption': 128
+    'opcache.save_comments': 1
+    'opcache.revalidate_freq': 1
+  sileht.net:
+    'suhosin.memory_limit': 256M
+    'memory_limit': 256M
+  s.sileht.net:
+    'suhosin.simulation': 'On'
+    'suhosin.memory_limit': 256M
+  feeds.sileht.net:
+    'suhosin.memory_limit': 512M
+    'memory_limit': 512M
+  c.sileht.net:
+    'suhosin.memory_limit': 512M
+    'memory_limit': 512M
+    'post_max_size': 6G
+    'upload_max_filesize': 5G
+    'max_file_uploads': 50
+    'always_populate_raw_post_data': 0
+    'max_input_time': 0
+    'max_execution_time': 0
+    'output_buffering': 'Off'
+    'error_log': '/var/log/nextcloud/nextcloud.log'
+    'log_errors': 'On'
+
+fail2ban::action: action_mwl
+fail2ban::banaction: shorewall
+fail2ban::email: "sileht-fail2ban@sileht.net"
+fail2ban::jails:
+  - ssh
+  - ssh-ddos
+  - nsd
+  - nginx-http-auth
+# bbox + snoot
+fail2ban::whitelist:
+  - '127.0.0.1/8'
+  - '176.158.220.71/32'
+  - '5.48.245.237/32'
+  - '93.93.41.215/32'
+  - '90.89.192.228/32'
+
+shorewall::ip_forwarding: true
+shorewall::log_martians: false
+shorewall::ipv4: true
+shorewall::ipv6: true
+#shorewall::ipv4_tunnels: true
+utils::firewall::proxyarps:
+  '91.224.148.3': { interface: '-', external: 'eth0', haveroute: 'Yes' }
+utils::firewall::configs:
+  BLACKLIST: 'ALL'
+utils::firewall::zones: ['net', 'vpn', 'home']
+utils::firewall::ifaces:
+  'lo': { zone: '-' }
+  'eth0': { zone: 'net', options: ['nosmurfs', 'tcpflags'] }
+  'tun-redhat': { zone: 'vpn', options: ['nosmurfs', 'tcpflags'] }
+  'wg': { zone: 'home', options: ['nosmurfs', 'tcpflags'] }
+utils::firewall::policies:
+  '10': { source: '$FW', dest: 'all', action: 'ACCEPT' }
+  '60': { source: 'home', dest: 'all', action: 'ACCEPT' }
+  '72': { source: 'all', dest: 'home', action: 'ACCEPT' }
+  '75': { source: 'net', dest: 'all', action: 'REJECT' } #, log_level: 'info' }
+  '80': { source: 'all', dest: 'all', action: 'DROP'} #, log_level: 'info' }
+utils::firewall::rules:
+  icmp: { application: Ping, action: ACCEPT, source: net, dest: '$FW', order: 10}
+  ssh: { proto: tcp, port: "5555", action: ACCEPT, source: net, dest: '$FW', order: 20}
+  checkmk: { proto: tcp, port: "6556", action: ACCEPT, source: net, dest: '$FW', order: 30}
+  dns: { proto: 'tcp,udp', port: "53", action: ACCEPT, source: net, dest: '$FW', order: 40}
+  iperf: { proto: 'tcp,udp', port: "5000:5005", action: ACCEPT, source: net, dest: '$FW', order: 70}
+  http: { proto: "tcp", port: "80", action: ACCEPT, source: net, dest: '$FW', order: 160}
+  https: { proto: "tcp", port: "443", action: ACCEPT, source: net, dest: '$FW', order: 170}
+  weechat: { proto: "tcp", port: "8001:8002", action: ACCEPT, source: net, dest: '$FW', order: 180}
+  mosh: { proto: "udp", port: "60000:60020", action: ACCEPT, source: net, dest: '$FW', order: 200}
+  redis: { proto: "tcp", port: "6379", action: ACCEPT, source: 'net:5.135.186.34', dest: '$FW', order: 210, ipv6: false}
+  node-exporter: { proto: "tcp", port: "9100", action: ACCEPT, source: 'net:89.234.156.171', dest: '$FW', order: 230, ipv6: false}

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# NOTE(sileht): permet de faire le premier backup 
+# # apres migration à borg
+# export BORG_UNKNOWN_UNENCRYPTED_REPO_ACCESS_IS_OK=1
+#
+mkdir -p /var/log/borg
+
+if [ "$1" == "--cron"  ]; then
+    tolog(){ cat > /var/log/borg/borg-$(date +%F-%T).log ;  }
+else
+    tolog(){ tee /var/log/borg/borg-$(date +%F-%T).log ;  }
+    opts="--progress"
+fi
+
+{
+
+set -e
+set -x 
+
+echo "* Last backup started at $(date +%FT%T%z)"
+
+eval $(ssh-agent -s) >/dev/null 2>&1
+trap "ssh-agent -k >/dev/null 2>&1" exit
+ssh-add /etc/backup-borg-rsa >/dev/null 2>&1
+
+
+<% scope.call_function('hiera', ['borg::pre_commands']).each do |cmd| -%>
+<%= cmd %>
+<% end %>
+
+REPOSITORY="<%= scope.call_function('hiera', ['borg::repository']) %>"
+NAME=$(date "+%Y-%m-%d_%H:%M:%S")
+[ "$1" == "--cron" ] && NAME=$(date "+%Y-%m-%d")-cron
+
+borg create --stats --compression zlib,6 $opts $REPOSITORY::$NAME <%= scope.call_function('hiera', ['borg::backups']).join(' ') %> \
+        <%= scope.call_function('hiera', ['borg::excludes']).map{ |s| s.prepend("--exclude ") }.join(' ') %> \
+        --exclude-caches
+borg prune --stats -d 7 -w 15 -m 24 -y 57 $REPOSITORY
+#borg check $REPO
+
+echo "* Last backup ended at $(date +%FT%T%z)"
+
+} 2>&1 | tolog
+
+

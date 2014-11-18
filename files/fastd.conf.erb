@@ -1,0 +1,22 @@
+log level debug;
+log to syslog level debug;
+
+mode tun;
+interface "tun-home";
+#drop capabilities yes;
+
+# Serveur
+bind <%= scope.function_hiera(['fastd_bind']) %>;
+secret "<%= scope.function_hiera(['fastd_server_secret']) %>";
+# key "<%= scope.function_hiera(['fastd_server_key']) %>";
+
+# Client
+# secret: <%= scope.function_hiera(['fastd_home_secret']) %>
+# key: <%= scope.function_hiera(['fastd_home_key']) %>
+peer "home" {remote 176.158.4.201:4444 ; float yes; key "<%= scope.function_hiera(['fastd_home_key']) %>"; }
+
+method "null";
+#method "null+salsa2012+gmac";
+#method "salsa2012+umac";
+
+on up "/etc/fastd/vpn/up.sh";

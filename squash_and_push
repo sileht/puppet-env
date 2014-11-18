@@ -1,0 +1,9 @@
+#!/bin/bash
+
+here=$(readlink -f $(dirname $0))
+cd $here
+git diff --no-ext-diff --ignore-submodules=dirty --quiet --exit-code
+ret=$?
+if [ $ret -ne 0 ]; then
+    git commit -a --amend --no-edit && git push upstream master --force
+fi

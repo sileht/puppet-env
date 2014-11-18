@@ -1,0 +1,30 @@
+---
+
+unbound::interface:
+ - 127.0.0.1
+unbound::anchor_file: /var/lib/unbound/root.key
+#unbound::interface_automatic: yes
+#unbound::access:
+#  - 2a01:6600:8081:d600::/56
+#  - 192.168.255.0/24
+#  - 91.224.149.214/32
+#  - 91.224.149.194/32
+#  - 91.224.149.89/32
+#  - 2a01:6600:8081:5900::/56
+#  - 91.224.148.3/32
+#  - 2a01:6600:8080:0300::/56
+#  - 5.135.186.34/32
+#  - 2001:41d0:8:c322::1/128
+unbound::prefetch: yes
+unbound::prefetch-key: yes
+unbound::num_threads: 8
+unbound::outgoing-range: 6400
+unbound::num_queries_per_thread: 6400
+unbound::msg_cache_size: 512m
+unbound::msg_cache_slabs: 8
+unbound::infra_cache_slabs: 8
+unbound::rrset_cache_size: 1024m
+unbound::rrset_cache_slabs: 8
+unbound::key_cache_slabs: 8
+unbound::private_domain: ["lan"]
+unbound::custom_server_conf: ["qname-minimisation: yes"]

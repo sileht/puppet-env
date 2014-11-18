@@ -1,0 +1,69 @@
+[submodule "modules/stdlib"]
+	path = modules/stdlib
+	url = https://github.com/puppetlabs/puppetlabs-stdlib.git
+[submodule "modules/apt"]
+	path = modules/apt
+	url = https://github.com/puppetlabs/puppetlabs-apt.git
+[submodule "modules/ssh"]
+	path = modules/ssh
+	url = https://github.com/saz/puppet-ssh.git
+[submodule "modules/concat"]
+	path = modules/concat
+	url = https://github.com/puppetlabs/puppetlabs-concat.git
+[submodule "modules/mount_providers"]
+	path = modules/mount_providers
+	url = https://github.com/puppetlabs/puppetlabs-mount_providers
+[submodule "modules/kmod"]
+	path = modules/kmod
+	url = https://github.com/camptocamp/puppet-kmod.git
+[submodule "modules/unbound"]
+	path = modules/unbound
+	url = https://github.com/xaque208/puppet-unbound.git
+[submodule "modules/vcsrepo"]
+	path = modules/vcsrepo
+	url = https://github.com/puppetlabs/puppetlabs-vcsrepo.git
+[submodule "modules/shorewall"]
+	path = modules/shorewall
+	url = https://github.com/inkblot/puppet-shorewall.git
+[submodule "modules/mysql"]
+	path = modules/mysql
+	url = https://github.com/puppetlabs/puppetlabs-mysql.git
+[submodule "modules/memcached"]
+	path = modules/memcached
+	url = https://github.com/saz/puppet-memcached.git
+[submodule "modules/phpfpm"]
+	path = modules/phpfpm
+	url = https://github.com/Slashbunny/puppet-phpfpm.git
+[submodule "modules/nginx"]
+	path = modules/nginx
+	url = https://github.com/jfryman/puppet-nginx.git
+[submodule "modules/sysctl"]
+	path = modules/sysctl
+	url = https://github.com/thias/puppet-sysctl.git
+[submodule "modules/openvpn"]
+	path = modules/openvpn
+	url = https://github.com/voxpupuli/puppet-openvpn.git
+[submodule "modules/supervisor"]
+	path = modules/supervisor
+	url = https://github.com/plathrop/puppet-module-supervisor.git
+[submodule "modules/fail2ban"]
+	path = modules/fail2ban
+	url = https://github.com/sileht/puppet-fail2ban
+[submodule "modules/checkmk"]
+	path = modules/checkmk
+	url = http://git.tetaneutral.net/puppet-checkmk.git
+[submodule "modules/firewall"]
+	path = modules/firewall
+	url = https://github.com/puppetlabs/puppetlabs-firewall
+[submodule "modules/staging"]
+	path = modules/staging
+	url = https://github.com/voxpupuli/puppet-staging
+[submodule "modules/translate"]
+	path = modules/translate
+	url = https://github.com/puppetlabs/puppetlabs-translate
+[submodule "modules/extlib"]
+	path = modules/extlib
+	url = https://github.com/voxpupuli/puppet-extlib
+[submodule "modules/resource_api"]
+	path = modules/resource_api
+	url = https://github.com/puppetlabs/puppet-resource_api

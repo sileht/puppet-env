@@ -1,0 +1,4 @@
+domain <%= scope.call_function('hiera', ['domain']) %>
+search <%= scope.call_function('hiera', ['domain']) %>.
+<% scope.call_function('hiera', ['nameservers']).each do |ns| %>nameserver <%= ns %>
+<% end -%>

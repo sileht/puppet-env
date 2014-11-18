@@ -1,0 +1,36 @@
+[global]
+    hostname = <%= @fqdn %>
+    run as user = netdata
+    web files owner = root
+    web files group = root
+
+    update every = 1
+
+<% if @fqdn == "gizmo.sileht.net" %>
+    # MASTER NODE
+    bind to = 127.0.0.1 <%= @ipaddress_eth0 %>
+    memory mode = ram
+    allow from = 127.0.0.1 91.224.149.214 5.135.186.34
+    history = 43200
+
+[web]
+    allow connections from = 127.0.0.1 91.224.149.214 5.135.186.34
+
+[registry]
+    enabled = yes
+    registry to announce = https://mon.sileht.net/gizmo/
+
+<% else %>
+    # SLAVE NODE
+    bind to = 127.0.0.1
+    allow from = 127.0.0.1
+    memory mode = none
+
+[web]
+    mode = none
+
+[health]
+    enabled = no
+
+<% end %>
+

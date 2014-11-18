@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ip link set tun-home up
+
+ip addr add 192.168.42.1/24 dev tun-home
+ip route add 91.224.148.3/32 dev tun-home src 91.224.149.214 
+ip -6 addr add fe80::81:d6/64 dev tun-home
+ip -6 route add  2a03:7220:8080:0300::/56 via fe80::80:03 dev tun-home src 2a03:7220:8081:d600::1

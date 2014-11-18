@@ -1,0 +1,14 @@
+{
+  "name": "sileht-utils",
+  "version": "0.1.0",
+  "author": "sileht",
+  "summary": null,
+  "license": "Apache 2.0",
+  "source": "https://github.com/sileht/puppet-utils",
+  "project_page": "https://github.com/sileht/puppet-utils",
+  "issues_url": "https://github.com/sileht/puppet-utils/issues",
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"}
+  ]
+}
+
